@@ -1,0 +1,53 @@
+<div class="app-shell">
+  <app-header [online]="!erro"></app-header>
+
+  <main class="app-main">
+    <!-- Input Section -->
+    <app-input-form
+      [nomeCompleto]="nomeCompleto" (nomeCompletoChange)="nomeCompleto = $event"
+      [idade]="idade" (idadeChange)="idade = $event"
+      [cenarioAtendimento]="cenarioAtendimento" (cenarioAtendimentoChange)="cenarioAtendimento = $event"
+      [textoTranscrito]="textoTranscrito" (textoTranscritoChange)="textoTranscrito = $event"
+      [gravando]="gravando"
+      [processando]="processando"
+      [tempoGravacao]="tempoGravacao"
+      [hasResult]="!!resultado"
+      (gravar)="onGravar()"
+      (analisar)="onAnalisar()"
+      (limpar)="onLimpar()">
+    </app-input-form>
+
+    <!-- Error Banner -->
+    <section class="error-banner" *ngIf="erro">
+      <span>⚠️ {{ erro }}</span>
+      <button class="btn-close" (click)="erro = ''">✕</button>
+    </section>
+
+    <!-- Results Section -->
+    <section class="result-section" *ngIf="resultado">
+      <app-patient-header [data]="resultado"></app-patient-header>
+
+      <app-soap-cards [soap]="resultado.soap"></app-soap-cards>
+
+      <app-clinical-json [data]="resultado.jsonUniversal"></app-clinical-json>
+
+      <app-dialog-panel
+        [dialog]="resultado.dialog"
+        [stats]="resultado.metadata">
+      </app-dialog-panel>
+
+      <app-documents-panel [documents]="resultado.documents"></app-documents-panel>
+
+      <!-- Raw JSON (Debug) -->
+      <details class="raw-json-section">
+        <summary>🔍 JSON Bruto (Debug)</summary>
+        <pre class="json-raw">{{ resultado | json }}</pre>
+      </details>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span>Medical Scribe Enterprise v3.0 — FastAPI + Angular 17</span>
+    <span>LGPD Compliance • {{ currentYear }}</span>
+  </footer>
+</div>

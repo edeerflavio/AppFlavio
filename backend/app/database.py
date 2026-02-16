@@ -5,11 +5,15 @@ SQLAlchemy 2.0 Async + asyncpg
 """
 
 import os
-from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Integer, Float, Text, DateTime, JSON, Boolean
+from sqlalchemy import String, Integer, Text, DateTime, JSON, Boolean
 
 
 # ══════════════════════════════════════════════════════════════
@@ -21,7 +25,14 @@ DATABASE_URL = os.getenv(
     "postgresql+asyncpg://admin:senha123@localhost:5432/medical_scribe"
 )
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+from sqlalchemy.pool import NullPool
+
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=True,
+    poolclass=NullPool,
+    connect_args={"ssl": "disable"},
+)
 
 AsyncSessionLocal = async_sessionmaker(
     engine,
@@ -46,20 +57,21 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
 
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
 # ══════════════════════════════════════════════════════════════
 # ORM Models
 # ══════════════════════════════════════════════════════════════
 
 class ConsultationRecord(Base):
-    """
-    Persists each consultation cycle.
-    Maps to the same data contract as bi-module.js recordCycle().
-    """
+    """Persists each consultation cycle."""
     __tablename__ = "consultations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
-    # ── Patient (LGPD-safe — only initials, never real name) ──
+    # ── Patient (LGPD-safe — only initials) ──
     iniciais: Mapped[str] = mapped_column(String(20), nullable=False)
     paciente_id: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
     idade: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -68,17 +80,17 @@ class ConsultationRecord(Base):
     # ── Clinical ──
     cid_principal_code: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     cid_principal_desc: Mapped[str] = mapped_column(String(200), nullable=False)
-    gravidade: Mapped[str] = mapped_column(String(20), nullable=False)  # Leve | Moderada | Grave
+    gravidade: Mapped[str] = mapped_column(String(20), nullable=False)
 
-    # ── Vital Signs (stored as JSON for flexibility) ──
+    # ── Vital Signs ──
     sinais_vitais: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
-    # ── SOAP (full structured output) ──
+    # ── SOAP ──
     soap_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     json_universal: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     clinical_data_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
-    # ── Dialog / Diarization ──
+    # ── Dialog ──
     dialog_json: Mapped[list | None] = mapped_column(JSON, nullable=True)
     total_falas: Mapped[int] = mapped_column(Integer, default=0)
     falas_medico: Mapped[int] = mapped_column(Integer, default=0)
@@ -90,17 +102,12 @@ class ConsultationRecord(Base):
     # ── Metadata ──
     texto_transcrito: Mapped[str | None] = mapped_column(Text, nullable=True)
     lgpd_conformidade: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow, onupdate=_utcnow)
 
 
 class BIRecord(Base):
-    """
-    Lightweight BI aggregation record.
-    Same structure as bi-module.js recordCycle() output.
-    """
+    """Lightweight BI aggregation record."""
     __tablename__ = "bi_records"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -112,22 +119,19 @@ class BIRecord(Base):
     sinais_vitais: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     hora: Mapped[int] = mapped_column(Integer, nullable=True)
     dia_semana: Mapped[str] = mapped_column(String(20), nullable=True)
-    timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
 
 class DocumentRecord(Base):
-    """
-    Persists generated clinical documents.
-    Maps to documents.js generateAll() output.
-    """
+    """Persists generated clinical documents."""
     __tablename__ = "documents"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     consultation_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
-    doc_type: Mapped[str] = mapped_column(String(30), nullable=False)  # prescription | attestation | exam_request | patient_guide
+    doc_type: Mapped[str] = mapped_column(String(30), nullable=False)
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     validated: Mapped[bool] = mapped_column(Boolean, default=False)
     validated_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     validated_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

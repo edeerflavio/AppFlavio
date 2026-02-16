@@ -1,13 +1,17 @@
 """
 routers/analyze.py — Analyze Endpoint
 Medical Scribe Enterprise v3.0
-POST /analyze: text in → SOAP + documents out (local processing, no OpenAI)
+POST /api/analyze: text → SOAP + documents + DB persistence
 """
 
-from fastapi import APIRouter, HTTPException
+from datetime import datetime, timezone
+
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 import logging
 
+from app.database import get_db, ConsultationRecord, BIRecord
 from core.security import process_patient_input
 from services.soap_engine import process as soap_process
 from services.documents import generate_all
@@ -20,9 +24,9 @@ router = APIRouter(prefix="/api", tags=["analyze"])
 # ── Request / Response Models ──
 
 class AnalyzeRequest(BaseModel):
-    nome_completo: str
-    idade: int
-    cenario_atendimento: str
+    nome_completo: str = "Paciente Anônimo"
+    idade: int = 0
+    cenario_atendimento: str = "PS"
     texto_transcrito: str
 
 
@@ -35,23 +39,25 @@ class AnalyzeResponse(BaseModel):
     dialog: list[dict] = []
     metadata: dict | None = None
     documents: dict | None = None
+    consultation_id: int | None = None
     errors: list[str] | None = None
 
 
 # ══════════════════════════════════════════════════════════════
-# POST /api/analyze
+# POST /api/analyze — Full pipeline
 # ══════════════════════════════════════════════════════════════
 
 @router.post("/analyze", response_model=AnalyzeResponse)
-async def analyze(request: AnalyzeRequest):
+async def analyze(request: AnalyzeRequest, db: AsyncSession = Depends(get_db)):
     """
     Full analysis pipeline:
     1. LGPD: sanitize patient identity
     2. SOAP: process transcription → structured clinical data
     3. Documents: generate prescription, attestation, exams, patient guide
+    4. Persist to PostgreSQL
     """
     try:
-        # 1. LGPD compliance — sanitize patient data
+        # 1. LGPD compliance
         lgpd_result = process_patient_input({
             "nome_completo": request.nome_completo,
             "idade": request.idade,
@@ -66,9 +72,9 @@ async def analyze(request: AnalyzeRequest):
             )
 
         patient_data = lgpd_result["data"]
-        logger.info(f"LGPD OK: {patient_data['iniciais']} ({patient_data['paciente_id']})")
+        logger.info(f"LGPD ✅ {patient_data['iniciais']} ({patient_data['paciente_id']})")
 
-        # 2. SOAP processing — local engine (same logic as soap-engine.js)
+        # 2. SOAP processing
         soap_result = soap_process(request.texto_transcrito)
 
         if not soap_result.get("success"):
@@ -78,15 +84,54 @@ async def analyze(request: AnalyzeRequest):
             )
 
         logger.info(
-            f"SOAP OK: CID={soap_result['clinicalData']['cid_principal']['code']}, "
+            f"SOAP ✅ CID={soap_result['clinicalData']['cid_principal']['code']}, "
             f"Gravidade={soap_result['clinicalData']['gravidade']}"
         )
 
         # 3. Document generation
         documents = generate_all(soap_result, patient_data)
-        logger.info(f"Docs OK: {len(documents)} documents generated")
+        logger.info(f"Docs ✅ {len(documents)} documentos gerados")
 
-        # 4. Build response
+        # 4. Persist to PostgreSQL
+        consultation = ConsultationRecord(
+            iniciais=patient_data["iniciais"],
+            paciente_id=patient_data["paciente_id"],
+            idade=patient_data["idade"],
+            cenario_atendimento=patient_data["cenario_atendimento"],
+            cid_principal_code=soap_result["clinicalData"]["cid_principal"]["code"],
+            cid_principal_desc=soap_result["clinicalData"]["cid_principal"]["desc"],
+            gravidade=soap_result["clinicalData"]["gravidade"],
+            sinais_vitais=soap_result["clinicalData"]["sinais_vitais"],
+            soap_json=soap_result["soap"],
+            json_universal=soap_result["jsonUniversal"],
+            clinical_data_json=soap_result["clinicalData"],
+            dialog_json=soap_result["dialog"],
+            total_falas=soap_result["metadata"]["total_falas"],
+            falas_medico=soap_result["metadata"]["falas_medico"],
+            falas_paciente=soap_result["metadata"]["falas_paciente"],
+            documents_json=documents,
+            texto_transcrito=request.texto_transcrito,
+        )
+        db.add(consultation)
+
+        bi_record = BIRecord(
+            iniciais=patient_data["iniciais"],
+            cenario=patient_data["cenario_atendimento"],
+            cid_principal=soap_result["clinicalData"]["cid_principal"]["code"],
+            cid_desc=soap_result["clinicalData"]["cid_principal"]["desc"],
+            gravidade_estimada=soap_result["clinicalData"]["gravidade"],
+            sinais_vitais=soap_result["clinicalData"]["sinais_vitais"],
+            hora=datetime.now(timezone.utc).hour,
+            dia_semana=datetime.now(timezone.utc).strftime("%A"),
+        )
+        db.add(bi_record)
+
+        await db.commit()
+        await db.refresh(consultation)
+
+        logger.info(f"DB ✅ consultation_id={consultation.id}")
+
+        # 5. Build response
         return AnalyzeResponse(
             success=True,
             patient=patient_data,
@@ -96,8 +141,12 @@ async def analyze(request: AnalyzeRequest):
             dialog=soap_result["dialog"],
             metadata=soap_result["metadata"],
             documents=documents,
+            consultation_id=consultation.id,
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Analyze error: {e}")
+        logger.error(f"❌ Analyze error: {e}", exc_info=True)
+        await db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
