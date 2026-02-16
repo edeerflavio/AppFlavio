@@ -1,0 +1,38 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+    <!-- Logo Area -->
+    <div class="logo-container">
+        <span class="material-symbols-rounded logo-icon filled">cardiology</span>
+        <span class="logo-text" *ngIf="!isCollapsed">Scribe Enterprise</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-menu">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+            <span class="material-symbols-rounded icon filled">home</span>
+            <span class="label" *ngIf="!isCollapsed">Home / Scribe</span>
+        </a>
+
+        <a class="nav-item disabled">
+            <span class="material-symbols-rounded icon">folder_open</span>
+            <span class="label" *ngIf="!isCollapsed">Histórico</span>
+        </a>
+        <a class="nav-item">
+            <span class="material-symbols-rounded icon">analytics</span>
+            <span class="label" *ngIf="!isCollapsed">Dashboard BI</span>
+        </a>
+        <a class="nav-item disabled">
+            <span class="material-symbols-rounded icon">settings</span>
+            <span class="label" *ngIf="!isCollapsed">Configurações</span>
+        </a>
+    </nav>
+
+    <!-- Footer / Toggle -->
+    <div class="sidebar-footer">
+        <button class="toggle-btn" (click)="toggleSidebar()">
+            <span class="material-symbols-rounded icon">
+                {{ isCollapsed ? 'last_page' : 'first_page' }}
+            </span>
+            <span class="label" *ngIf="!isCollapsed">Recolher Menu</span>
+        </button>
+    </div>
+</aside>
