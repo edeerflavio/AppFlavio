@@ -13,6 +13,9 @@ import json
 import logging
 from datetime import datetime
 
+# ── Enterprise modules ──
+from routers.analyze import router as analyze_router
+
 # ── Config ──
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -34,6 +37,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Enterprise Router (local SOAP engine) ──
+app.include_router(analyze_router)
 
 # ══════════════════════════════════════════════════════════════
 # SYSTEM PROMPT — Enforces exact JSON schema for frontend compat
