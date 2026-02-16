@@ -1,0 +1,30 @@
+<div class="settings-container">
+    <div class="settings-card">
+        <h2>
+            <span class="material-symbols-rounded">settings</span>
+            Configurações
+        </h2>
+        <span class="subtitle">Personalize sua experiência no Medical Scribe.</span>
+
+        <div class="form-group">
+            <label for="doctorName">Nome do Médico (para transcrição)</label>
+            <input type="text" id="doctorName" [(ngModel)]="doctorName" placeholder="Ex: Dr. Flávio" />
+        </div>
+
+        <div class="actions">
+            <button class="btn-reset" (click)="resetSettings()">
+                <span class="material-symbols-rounded">restart_alt</span>
+                Restaurar Padrão
+            </button>
+            <button class="btn-save" (click)="saveSettings()">
+                <span class="material-symbols-rounded">save</span>
+                Salvar Alterações
+            </button>
+        </div>
+
+        <div class="success-message" *ngIf="saved">
+            <span class="material-symbols-rounded">check_circle</span>
+            Configurações salvas com sucesso!
+        </div>
+    </div>
+</div>

@@ -28,9 +28,12 @@ export class ScribeService {
         return this.http.post<AnalyzeResponse>(this.apiUrl, payload);
     }
 
-    transcribeAudio(file: Blob): Observable<{ text: string }> {
+    transcribeAudio(file: Blob, doctorName: string = ''): Observable<{ text: string }> {
         const formData = new FormData();
         formData.append('file', file, 'recording.webm');
+        if (doctorName) {
+            formData.append('doctor_name', doctorName);
+        }
         return this.http.post<{ text: string }>('/api/transcribe', formData);
     }
 }
