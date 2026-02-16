@@ -27,4 +27,10 @@ export class ScribeService {
     analyzeText(payload: AnalyzePayload): Observable<AnalyzeResponse> {
         return this.http.post<AnalyzeResponse>(this.apiUrl, payload);
     }
+
+    transcribeAudio(file: Blob): Observable<{ text: string }> {
+        const formData = new FormData();
+        formData.append('file', file, 'recording.webm');
+        return this.http.post<{ text: string }>('/api/transcribe', formData);
+    }
 }

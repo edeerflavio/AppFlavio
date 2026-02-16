@@ -11,6 +11,7 @@ import { DialogPanelComponent } from '../../components/dialog-panel/dialog-panel
 import { DocumentsPanelComponent } from '../../components/documents-panel/documents-panel.component';
 
 import { ScribeService, AnalyzePayload } from '../../services/scribe.service';
+import { AudioRecorderService } from '../../services/audio-recorder.service';
 import { AnalyzeResponse } from '../../models/analyze.model';
 
 @Component({
@@ -26,10 +27,12 @@ import { AnalyzeResponse } from '../../models/analyze.model';
         DialogPanelComponent,
         DocumentsPanelComponent
     ],
-    templateUrl: './home.component.html'
+    templateUrl: './home.component.html',
+    styleUrl: './home.component.scss'
 })
 export class HomeComponent {
     private scribeService = inject(ScribeService);
+    private audioRecorder = inject(AudioRecorderService);
 
     // ── State ──
     nomeCompleto = '';
@@ -51,22 +54,49 @@ export class HomeComponent {
     // Actions
     // ══════════════════════════════════════════════════════════════
 
-    onGravar(): void {
+    async onGravar(): Promise<void> {
         if (this.gravando) {
             // Stop recording
             this.gravando = false;
             clearInterval(this.gravacaoInterval);
 
-            if (!this.textoTranscrito.trim()) {
-                this.textoTranscrito = this.getSimulatedTranscript();
+            try {
+                this.processando = true; // Show spinner while transcribing
+                const audioBlob = await this.audioRecorder.stopRecording();
+
+                this.scribeService.transcribeAudio(audioBlob).subscribe({
+                    next: (res) => {
+                        this.processando = false;
+                        // Append or set text
+                        const current = this.textoTranscrito ? this.textoTranscrito + '\n\n' : '';
+                        this.textoTranscrito = current + res.text;
+                    },
+                    error: (err) => {
+                        this.processando = false;
+                        this.erro = 'Erro na transcrição: ' + (err.error?.detail || err.message);
+                        console.error(err);
+                    }
+                });
+            } catch (err) {
+                this.processando = false;
+                this.erro = 'Erro ao processar áudio';
+                console.error(err);
             }
+
         } else {
             // Start recording
-            this.gravando = true;
-            this.tempoGravacao = 0;
-            this.gravacaoInterval = setInterval(() => {
-                this.tempoGravacao++;
-            }, 1000);
+            try {
+                this.erro = '';
+                await this.audioRecorder.startRecording();
+                this.gravando = true;
+                this.tempoGravacao = 0;
+                this.gravacaoInterval = setInterval(() => {
+                    this.tempoGravacao++;
+                }, 1000);
+            } catch (err) {
+                this.erro = 'Não foi possível acessar o microfone.';
+                console.error(err);
+            }
         }
     }
 
@@ -104,13 +134,4 @@ export class HomeComponent {
         this.erro = '';
     }
 
-    private getSimulatedTranscript(): string {
-        return 'Médico: Bom dia, como está se sentindo?\n' +
-            'Paciente: Doutor, estou com dor de cabeça forte há 3 dias, não passa com nada.\n' +
-            'Médico: Entendi. Vou verificar seus sinais vitais. PA 150 por 95, frequência cardíaca 92, ' +
-            'saturação 97%, temperatura 37.2 graus.\n' +
-            'Paciente: Também tenho diabetes e tomo metformina. Tenho alergia a DIPIRONA.\n' +
-            'Médico: Certo. Vou solicitar alguns exames e iniciar o tratamento para a cefaleia.\n' +
-            'Paciente: Obrigado doutor.';
-    }
 }

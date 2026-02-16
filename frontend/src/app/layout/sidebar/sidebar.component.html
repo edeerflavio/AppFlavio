@@ -32,7 +32,11 @@
             <span class="material-symbols-rounded icon">
                 {{ isCollapsed ? 'last_page' : 'first_page' }}
             </span>
-            <span class="label" *ngIf="!isCollapsed">Recolher Menu</span>
+            <span class="label" *ngIf="!isCollapsed">Minimizar</span>
         </button>
+        <div class="copyright" *ngIf="!isCollapsed">
+            © 2026 Medical Scribe Enterprise • v3.0<br>
+            Powered by LangChain + OpenAI
+        </div>
     </div>
 </aside>

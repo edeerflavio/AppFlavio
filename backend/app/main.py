@@ -14,6 +14,7 @@ from app.database import init_db
 from routers.analyze import router as analyze_router
 from app.routers.consultations import router as consultations_router
 from app.routers.bi import router as bi_router
+from app.routers.transcription import router as transcription_router
 
 
 # ── Logging ──
@@ -54,6 +55,7 @@ app.add_middleware(
 app.include_router(analyze_router)
 app.include_router(consultations_router)
 app.include_router(bi_router)
+app.include_router(transcription_router)
 
 
 # ══════════════════════════════════════════════════════════════
