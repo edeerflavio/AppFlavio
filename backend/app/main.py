@@ -11,10 +11,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import init_db
-from routers.analyze import router as analyze_router
+from app.routers.analyze import router as analyze_router
 from app.routers.consultations import router as consultations_router
 from app.routers.bi import router as bi_router
 from app.routers.transcription import router as transcription_router
+from app.routers.llm_settings import router as llm_settings_router
 
 
 # ── Logging ──
@@ -56,6 +57,7 @@ app.include_router(analyze_router)
 app.include_router(consultations_router)
 app.include_router(bi_router)
 app.include_router(transcription_router)
+app.include_router(llm_settings_router)
 
 
 # ══════════════════════════════════════════════════════════════

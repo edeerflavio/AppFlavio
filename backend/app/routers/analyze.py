@@ -1,5 +1,5 @@
 """
-routers/analyze.py — Analyze Endpoint
+app/routers/analyze.py — Analyze Endpoint
 Medical Scribe Enterprise v3.0
 POST /api/analyze: text → SOAP + documents + DB persistence
 """
@@ -104,7 +104,7 @@ async def analyze(request: AnalyzeRequest, db: AsyncSession = Depends(get_db)):
             logger.info(f"Docs ✅ {len(documents)} documentos gerados")
         except Exception as e:
             logger.error(f"Document generation failed: {e}", exc_info=True)
-            documents = {} # Fallback
+            documents = {}  # Fallback
 
         # 4. Persist to PostgreSQL
         try:

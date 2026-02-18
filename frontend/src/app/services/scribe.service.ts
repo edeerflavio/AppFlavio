@@ -15,6 +15,29 @@ export interface AnalyzePayload {
     texto_transcrito: string;
 }
 
+export interface LLMSettings {
+    provider: string;
+    api_key_masked: string;
+    has_api_key: boolean;
+    transcription_model: string;
+    chat_model: string;
+    available_transcription_models: string[];
+    available_chat_models: string[];
+}
+
+export interface LLMSettingsUpdate {
+    api_key?: string;
+    transcription_model?: string;
+    chat_model?: string;
+    provider?: string;
+}
+
+export interface TestConnectionResult {
+    success: boolean;
+    message: string;
+    model_tested: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -34,6 +57,20 @@ export class ScribeService {
         if (doctorName) {
             formData.append('doctor_name', doctorName);
         }
-        return this.http.post<{ text: string }>('/api/transcribe', formData);
+        return this.http.post<{ text: string }>('/api/transcribe/', formData);
+    }
+
+    // ── LLM Settings ──
+
+    getLLMSettings(): Observable<LLMSettings> {
+        return this.http.get<LLMSettings>('/api/settings/llm/');
+    }
+
+    saveLLMSettings(settings: LLMSettingsUpdate): Observable<LLMSettings> {
+        return this.http.put<LLMSettings>('/api/settings/llm/', settings);
+    }
+
+    testLLMConnection(): Observable<TestConnectionResult> {
+        return this.http.post<TestConnectionResult>('/api/settings/llm/test', {});
     }
 }

@@ -2,14 +2,14 @@
     <!-- Logo Area -->
     <div class="logo-container">
         <span class="material-symbols-rounded logo-icon filled">cardiology</span>
-        <span class="logo-text" *ngIf="!isCollapsed">Scribe Enterprise</span>
+        <span class="logo-text" *ngIf="!isCollapsed">Help Doctor</span>
     </div>
 
     <!-- Navigation -->
     <nav class="nav-menu">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
             <span class="material-symbols-rounded icon filled">home</span>
-            <span class="label" *ngIf="!isCollapsed">Home / Scribe</span>
+            <span class="label" *ngIf="!isCollapsed">Home</span>
         </a>
 
         <a class="nav-item disabled">
@@ -35,8 +35,7 @@
             <span class="label" *ngIf="!isCollapsed">Minimizar</span>
         </button>
         <div class="copyright" *ngIf="!isCollapsed">
-            © 2026 Medical Scribe Enterprise • v3.0<br>
-            Powered by LangChain + OpenAI
+            © 2026 Help Doctor • v1.0<br>
         </div>
     </div>
 </aside>

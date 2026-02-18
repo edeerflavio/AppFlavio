@@ -29,7 +29,7 @@ from sqlalchemy.pool import NullPool
 
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
+    echo=os.getenv("DB_ECHO", "false").lower() == "true",
     poolclass=NullPool,
     connect_args={"ssl": "disable"},
 )

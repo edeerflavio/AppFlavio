@@ -13,23 +13,5 @@
         [tempoGravacao]="tempoGravacao" [hasResult]="!!resultado" (gravar)="onGravar()" (analisar)="onAnalisar()"
         (limpar)="onLimpar()"></app-input-form>
 
-    <!-- RESULT DASHBOARD -->
-    <div class="dashboard-grid" *ngIf="resultado">
-
-        <!-- LEFT COLUMN -->
-        <div class="col-main">
-            <app-patient-header [patient]="resultado.patient"></app-patient-header>
-            <app-soap-cards [soap]="resultado.soap"></app-soap-cards>
-        </div>
-
-        <!-- RIGHT COLUMN -->
-        <div class="col-sidebar">
-            <app-clinical-json [clinicalData]="resultado.clinicalData"
-                [jsonUniversal]="resultado.jsonUniversal"></app-clinical-json>
-            <app-documents-panel [documents]="resultado.documents"></app-documents-panel>
-            <app-dialog-panel [dialog]="resultado.dialog"></app-dialog-panel>
-        </div>
-
-    </div>
 
 </main>

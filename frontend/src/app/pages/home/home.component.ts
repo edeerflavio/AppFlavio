@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule, JsonPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 import { HeaderComponent } from '../../components/header/header.component';
 import { InputFormComponent } from '../../components/input-form/input-form.component';
@@ -18,7 +19,7 @@ import { AnalyzeResponse } from '../../models/analyze.model';
     selector: 'app-home',
     standalone: true,
     imports: [
-        CommonModule, JsonPipe,
+        CommonModule,
         HeaderComponent,
         InputFormComponent,
         PatientHeaderComponent,
@@ -33,6 +34,7 @@ import { AnalyzeResponse } from '../../models/analyze.model';
 export class HomeComponent {
     private scribeService = inject(ScribeService);
     private audioRecorder = inject(AudioRecorderService);
+    private router = inject(Router);
 
     // ── State ──
     nomeCompleto = '';
@@ -73,7 +75,7 @@ export class HomeComponent {
                     },
                     error: (err) => {
                         this.processando = false;
-                        this.erro = 'Erro na transcrição: ' + (err.error?.detail || err.message);
+                        this.erro = this.parseTranscriptionError(err);
                         console.error(err);
                     }
                 });
@@ -117,7 +119,11 @@ export class HomeComponent {
         this.scribeService.analyzeText(payload).subscribe({
             next: (res) => {
                 this.processando = false;
-                this.resultado = res;
+                if (res.success && res.consultation_id) {
+                    this.router.navigate(['/consultation', res.consultation_id]);
+                } else {
+                    this.erro = 'Análise concluída, mas sem ID de consulta.';
+                }
             },
             error: (err: HttpErrorResponse) => {
                 this.processando = false;
@@ -132,6 +138,26 @@ export class HomeComponent {
     onLimpar(): void {
         this.resultado = null;
         this.erro = '';
+        this.textoTranscrito = '';
+        this.nomeCompleto = '';
+        this.idade = 0;
+        this.cenarioAtendimento = 'PS';
+    }
+
+    private parseTranscriptionError(err: any): string {
+        const status = err.status || err.error?.status;
+        const detail = err.error?.detail || '';
+
+        switch (status) {
+            case 401:
+                return 'Modelo de IA indisponível — API Key inválida. Acesse Configurações para corrigir.';
+            case 429:
+                return 'Limite de requisições atingido. Aguarde alguns instantes e tente novamente.';
+            case 503:
+                return 'Serviço de IA indisponível. Verifique suas configurações ou tente mais tarde.';
+            default:
+                return detail || 'Erro na transcrição. Verifique suas configurações de IA.';
+        }
     }
 
 }

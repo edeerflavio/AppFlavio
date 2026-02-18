@@ -31,6 +31,10 @@ export class AudioRecorderService {
         }
     }
 
+    isRecording(): boolean {
+        return this.mediaRecorder !== null && this.mediaRecorder.state === 'recording';
+    }
+
     stopRecording(): Promise<Blob> {
         return new Promise((resolve) => {
             if (!this.mediaRecorder) {
@@ -40,6 +44,7 @@ export class AudioRecorderService {
 
             this.mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+                this.audioChunks = [];
                 this.stopStream();
                 this.mediaRecorder = null;
                 resolve(audioBlob);

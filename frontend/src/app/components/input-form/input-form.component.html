@@ -31,9 +31,25 @@
     <!-- Transcription Textarea -->
     <div class="input-group full-width">
         <label for="transcricao">Transcrição / Texto Clínico</label>
-        <textarea id="transcricao" rows="6" [(ngModel)]="textoTranscrito"
-            (ngModelChange)="textoTranscritoChange.emit($event)"
-            placeholder="Digite o caso clínico ou use o botão Gravar para ditar..." [disabled]="gravando"></textarea>
+
+        <div class="textarea-wrapper">
+            <div class="status-bar">
+                <div class="badges">
+                    <span class="badge mode">CTX: {{ cenarioAtendimento }}</span>
+                    <span class="badge status ready" *ngIf="!gravando && !processando">PRONTO</span>
+                    <span class="badge status rec" *ngIf="gravando">GRAVANDO</span>
+                    <span class="badge status busy" *ngIf="processando">PROCESSANDO</span>
+                </div>
+                <div class="path-display">
+                    <span class="icon material-symbols-rounded">folder_open</span>
+                    <span>~/consultas/nova_entrada</span>
+                </div>
+            </div>
+
+            <textarea id="transcricao" rows="12" [(ngModel)]="textoTranscrito"
+                (ngModelChange)="textoTranscritoChange.emit($event)" placeholder="Aguardando entrada de voz ou texto..."
+                [disabled]="gravando || processando"></textarea>
+        </div>
     </div>
 
     <!-- Action Buttons -->

@@ -3,17 +3,11 @@
 
   <main class="app-main">
     <!-- Input Section -->
-    <app-input-form
-      [nomeCompleto]="nomeCompleto" (nomeCompletoChange)="nomeCompleto = $event"
-      [idade]="idade" (idadeChange)="idade = $event"
-      [cenarioAtendimento]="cenarioAtendimento" (cenarioAtendimentoChange)="cenarioAtendimento = $event"
-      [textoTranscrito]="textoTranscrito" (textoTranscritoChange)="textoTranscrito = $event"
-      [gravando]="gravando"
-      [processando]="processando"
-      [tempoGravacao]="tempoGravacao"
-      [hasResult]="!!resultado"
-      (gravar)="onGravar()"
-      (analisar)="onAnalisar()"
+    <app-input-form [nomeCompleto]="nomeCompleto" (nomeCompletoChange)="nomeCompleto = $event" [idade]="idade"
+      (idadeChange)="idade = $event" [cenarioAtendimento]="cenarioAtendimento"
+      (cenarioAtendimentoChange)="cenarioAtendimento = $event" [textoTranscrito]="textoTranscrito"
+      (textoTranscritoChange)="textoTranscrito = $event" [gravando]="gravando" [processando]="processando"
+      [tempoGravacao]="tempoGravacao" [hasResult]="!!resultado" (gravar)="onGravar()" (analisar)="onAnalisar()"
       (limpar)="onLimpar()">
     </app-input-form>
 
@@ -31,9 +25,7 @@
 
       <app-clinical-json [data]="resultado.jsonUniversal"></app-clinical-json>
 
-      <app-dialog-panel
-        [dialog]="resultado.dialog"
-        [stats]="resultado.metadata">
+      <app-dialog-panel [dialog]="resultado.dialog" [stats]="resultado.metadata">
       </app-dialog-panel>
 
       <app-documents-panel [documents]="resultado.documents"></app-documents-panel>
@@ -47,7 +39,7 @@
   </main>
 
   <footer class="app-footer">
-    <span>Medical Scribe Enterprise v3.0 — FastAPI + Angular 17</span>
+    <span>Help Doctor - Solução Clínica Inteligente com I.A</span>
     <span>LGPD Compliance • {{ currentYear }}</span>
   </footer>
 </div>

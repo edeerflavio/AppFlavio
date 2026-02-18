@@ -1,0 +1,96 @@
+@use '../../../styles.scss' as *;
+
+.detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+
+        &:hover {
+            color: var(--primary);
+        }
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin: 0;
+        color: var(--text-primary);
+    }
+}
+
+.loading-state,
+.error-state {
+    @include glass-panel;
+    padding: 48px;
+    text-align: center;
+    border-radius: var(--radius-xl);
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        margin: 0 auto 16px;
+        animation: spin 1s infinite linear;
+    }
+
+    p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+}
+
+.error-state {
+    border-color: var(--danger);
+    background: rgba(239, 68, 68, 0.05);
+
+    .material-symbols-rounded {
+        font-size: 48px;
+        color: var(--danger);
+        margin-bottom: 16px;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+.main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.side-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
