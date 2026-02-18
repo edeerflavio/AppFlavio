@@ -1,0 +1,90 @@
+/* ═══ Shell ═══ */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ═══ Main ═══ */
+.app-main {
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* ═══ Error Banner ═══ */
+.error-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  color: #EF4444;
+  font-weight: 500;
+  animation: fadeInUp 300ms ease;
+}
+.btn-close {
+  background: none;
+  border: none;
+  color: #EF4444;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* ═══ Results ═══ */
+.result-section {
+  animation: fadeInUp 400ms ease;
+}
+
+/* ═══ Raw JSON ═══ */
+.raw-json-section {
+  background: #1E293B;
+  border-radius: 14px;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+}
+.raw-json-section summary {
+  cursor: pointer;
+  color: #94A3B8;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.json-raw {
+  margin-top: 12px;
+  background: #0F172A;
+  padding: 16px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: #64748B;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-family: 'Consolas', 'Menlo', monospace;
+}
+
+/* ═══ Footer ═══ */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 32px;
+  color: #64748B;
+  font-size: 0.8rem;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+@media (max-width: 768px) {
+  .app-main { padding: 16px; }
+  .app-footer { flex-direction: column; gap: 4px; text-align: center; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}

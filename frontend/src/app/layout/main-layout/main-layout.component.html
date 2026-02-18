@@ -1,0 +1,18 @@
+<div class="layout-wrapper">
+    <app-sidebar [isCollapsed]="isSidebarCollapsed" (toggle)="toggleSidebar()"></app-sidebar>
+
+    <main class="main-content" [class.expanded]="isSidebarCollapsed">
+        <!-- Topbar for Mobile -->
+        <header class="mobile-header">
+            <button class="mobile-menu-btn" (click)="toggleSidebar()">
+                <span class="material-symbols-rounded">menu</span>
+            </button>
+            <span class="mobile-logo">Scribe Mobile</span>
+            <div style="width: 40px"></div> <!-- Spacer for center alignment -->
+        </header>
+
+        <div class="content-container">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

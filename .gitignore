@@ -1,21 +1,46 @@
-# Environment secrets
-backend/.env
+# ── Environment & Secrets ──
 .env
+.env.local
+.env.*.local
+backend/.env
 
-# Python
+# ── Python ──
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
 .venv/
 venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
 
-# IDE
+# ── Node / Angular ──
+node_modules/
+.angular/
+.sass-cache/
+connect.lock
+coverage/
+lib/
+npm-debug.log
+yarn-error.log
+testem.log
+/dist
+/tmp
+/out-tsc
+bazel-out
+/*/result*
+
+# ── IDE ──
 .vscode/
 .idea/
-
-# OS
-Thumbs.db
+*.swp
+*.swo
 .DS_Store
+Thumbs.db
 
-# Resolved files
-*.resolved
+# ── Docker ──
+docker-compose.override.yml

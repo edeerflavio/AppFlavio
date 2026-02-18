@@ -1,0 +1,41 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+    <!-- Logo Area -->
+    <div class="logo-container">
+        <span class="material-symbols-rounded logo-icon filled">cardiology</span>
+        <span class="logo-text" *ngIf="!isCollapsed">Help Doctor</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav-menu">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+            <span class="material-symbols-rounded icon filled">home</span>
+            <span class="label" *ngIf="!isCollapsed">Home</span>
+        </a>
+
+        <a class="nav-item disabled">
+            <span class="material-symbols-rounded icon">folder_open</span>
+            <span class="label" *ngIf="!isCollapsed">Histórico</span>
+        </a>
+        <a class="nav-item">
+            <span class="material-symbols-rounded icon">analytics</span>
+            <span class="label" *ngIf="!isCollapsed">Dashboard BI</span>
+        </a>
+        <a class="nav-item" routerLink="/settings" routerLinkActive="active">
+            <span class="material-symbols-rounded icon">settings</span>
+            <span class="label" *ngIf="!isCollapsed">Configurações</span>
+        </a>
+    </nav>
+
+    <!-- Footer / Toggle -->
+    <div class="sidebar-footer">
+        <button class="toggle-btn" (click)="toggleSidebar()">
+            <span class="material-symbols-rounded icon">
+                {{ isCollapsed ? 'last_page' : 'first_page' }}
+            </span>
+            <span class="label" *ngIf="!isCollapsed">Minimizar</span>
+        </button>
+        <div class="copyright" *ngIf="!isCollapsed">
+            © 2026 Help Doctor • v1.0<br>
+        </div>
+    </div>
+</aside>

@@ -1,0 +1,136 @@
+<div class="settings-container">
+
+    <!-- ═══════════ Loading State ═══════════ -->
+    <div class="loading-overlay" *ngIf="loadingConfig">
+        <span class="spinner-large"></span>
+        <span class="loading-text">Carregando configurações...</span>
+    </div>
+
+    <!-- ═══════════ Error Banner ═══════════ -->
+    <div class="error-banner" *ngIf="errorMessage">
+        <span class="material-symbols-rounded">error</span>
+        {{ errorMessage }}
+        <button class="btn-dismiss" (click)="errorMessage = ''">✕</button>
+    </div>
+
+    <!-- ═══════════ SECTION 1: Perfil do Médico ═══════════ -->
+    <div class="settings-card">
+        <div class="card-header">
+            <span class="material-symbols-rounded header-icon">person</span>
+            <div>
+                <h2>Perfil do Médico</h2>
+                <span class="subtitle">Nome utilizado na transcrição e documentos clínicos.</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="doctorName">Nome do Médico</label>
+            <input type="text" id="doctorName" [(ngModel)]="doctorName" placeholder="Ex: Dr. Flávio" />
+        </div>
+    </div>
+
+    <!-- ═══════════ SECTION 2: Configuração de IA ═══════════ -->
+    <div class="settings-card">
+        <div class="card-header">
+            <span class="material-symbols-rounded header-icon ai-icon">psychology</span>
+            <div>
+                <h2>Configuração de IA</h2>
+                <span class="subtitle">Gerencie seu provedor, modelos e chave de API.</span>
+            </div>
+        </div>
+
+        <!-- Provider -->
+        <div class="form-group">
+            <label for="provider">Provedor</label>
+            <select id="provider" [(ngModel)]="provider">
+                <option value="openai">OpenAI</option>
+            </select>
+        </div>
+
+        <!-- API Key -->
+        <div class="form-group api-key-group">
+            <label for="apiKey">
+                API Key
+                <span class="key-status" *ngIf="hasApiKey && !apiKey">
+                    <span class="material-symbols-rounded status-icon filled"
+                        style="font-size: 16px; color: var(--accent);">check_circle</span>
+                    Configurada: {{ apiKeyMasked }}
+                </span>
+                <span class="key-status no-key" *ngIf="!hasApiKey && !apiKey">
+                    <span class="material-symbols-rounded status-icon"
+                        style="font-size: 16px; color: var(--warning);">warning</span>
+                    Não configurada
+                </span>
+            </label>
+            <div class="api-key-input-wrapper">
+                <input [type]="showApiKey ? 'text' : 'password'" id="apiKey" [(ngModel)]="apiKey"
+                    [placeholder]="hasApiKey ? 'Deixe em branco para manter a atual' : 'sk-proj-...'" />
+                <button class="btn-toggle-visibility" (click)="toggleApiKeyVisibility()" type="button"
+                    [title]="showApiKey ? 'Ocultar' : 'Mostrar'">
+                    <span class="material-symbols-rounded">
+                        {{ showApiKey ? 'visibility_off' : 'visibility' }}
+                    </span>
+                </button>
+            </div>
+            <span class="help-text">
+                Obtenha sua chave em
+                <a href="https://platform.openai.com/api-keys" target="_blank"
+                    rel="noopener">platform.openai.com/api-keys</a>
+            </span>
+        </div>
+
+        <!-- Models Row -->
+        <div class="models-row">
+            <div class="form-group">
+                <label for="transcriptionModel">Modelo de Transcrição</label>
+                <select id="transcriptionModel" [(ngModel)]="transcriptionModel">
+                    <option *ngFor="let m of availableTranscriptionModels" [value]="m">{{ m }}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="chatModel">Modelo de Chat (Formatação)</label>
+                <select id="chatModel" [(ngModel)]="chatModel">
+                    <option *ngFor="let m of availableChatModels" [value]="m">{{ m }}</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Test Connection -->
+        <div class="test-connection-section">
+            <button class="btn-test" (click)="testConnection()" [disabled]="testingConnection || !hasApiKey">
+                <span class="spinner-small" *ngIf="testingConnection"></span>
+                <span class="material-symbols-rounded" *ngIf="!testingConnection">bolt</span>
+                {{ testingConnection ? 'Testando...' : 'Testar Conexão' }}
+            </button>
+
+            <div class="connection-result" *ngIf="connectionStatus !== 'idle'"
+                [class.success]="connectionStatus === 'success'" [class.error]="connectionStatus === 'error'">
+                <span class="material-symbols-rounded filled">
+                    {{ connectionStatus === 'success' ? 'check_circle' : 'cancel' }}
+                </span>
+                {{ connectionMessage }}
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ Action Buttons ═══════════ -->
+    <div class="settings-card actions-card">
+        <div class="actions">
+            <button class="btn-reset" (click)="resetSettings()">
+                <span class="material-symbols-rounded">restart_alt</span>
+                Restaurar Padrão
+            </button>
+            <button class="btn-save" (click)="saveSettings()" [disabled]="saving">
+                <span class="spinner-small" *ngIf="saving"></span>
+                <span class="material-symbols-rounded" *ngIf="!saving">save</span>
+                {{ saving ? 'Salvando...' : 'Salvar Alterações' }}
+            </button>
+        </div>
+
+        <div class="success-message" *ngIf="saved">
+            <span class="material-symbols-rounded filled">check_circle</span>
+            Configurações salvas com sucesso!
+        </div>
+    </div>
+</div>

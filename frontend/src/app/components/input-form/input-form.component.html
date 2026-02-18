@@ -1,0 +1,81 @@
+<section class="input-card" [class.recording]="gravando">
+    <div class="card-header">
+        <span class="material-symbols-rounded header-icon">edit_note</span>
+        <h2>Entrada Clínica</h2>
+    </div>
+
+    <!-- Patient Info Row -->
+    <div class="input-row">
+        <div class="input-group">
+            <label for="nome">Nome Completo</label>
+            <input id="nome" type="text" [(ngModel)]="nomeCompleto" (ngModelChange)="nomeCompletoChange.emit($event)"
+                placeholder="Ex: João Oliveira Silva" />
+        </div>
+        <div class="input-group input-small">
+            <label for="idade">Idade</label>
+            <input id="idade" type="number" [(ngModel)]="idade" (ngModelChange)="idadeChange.emit($event)" min="0"
+                max="150" />
+        </div>
+        <div class="input-group">
+            <label for="cenario">Cenário</label>
+            <select id="cenario" [(ngModel)]="cenarioAtendimento"
+                (ngModelChange)="cenarioAtendimentoChange.emit($event)">
+                <option value="UBS">UBS</option>
+                <option value="PS">PS</option>
+                <option value="UTI">UTI</option>
+                <option value="Consultório">Consultório</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Transcription Textarea -->
+    <div class="input-group full-width">
+        <label for="transcricao">Transcrição / Texto Clínico</label>
+
+        <div class="textarea-wrapper">
+            <div class="status-bar">
+                <div class="badges">
+                    <span class="badge mode">CTX: {{ cenarioAtendimento }}</span>
+                    <span class="badge status ready" *ngIf="!gravando && !processando">PRONTO</span>
+                    <span class="badge status rec" *ngIf="gravando">GRAVANDO</span>
+                    <span class="badge status busy" *ngIf="processando">PROCESSANDO</span>
+                </div>
+                <div class="path-display">
+                    <span class="icon material-symbols-rounded">folder_open</span>
+                    <span>~/consultas/nova_entrada</span>
+                </div>
+            </div>
+
+            <textarea id="transcricao" rows="12" [(ngModel)]="textoTranscrito"
+                (ngModelChange)="textoTranscritoChange.emit($event)" placeholder="Aguardando entrada de voz ou texto..."
+                [disabled]="gravando || processando"></textarea>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-row">
+        <button class="btn btn-record" (click)="onGravar()" [class.active]="gravando">
+            <span class="material-symbols-rounded btn-icon rec-icon">
+                {{ gravando ? 'stop_circle' : 'mic' }}
+            </span>
+            {{ gravando ? 'Parar Gravação' : 'Gravar Áudio' }}
+        </button>
+
+        <button class="btn btn-primary" (click)="onAnalisar()" [disabled]="processando || !textoTranscrito.trim()">
+            <span class="spinner" *ngIf="processando"></span>
+            <span class="material-symbols-rounded btn-icon" *ngIf="!processando">psychology</span>
+            {{ processando ? 'Processando...' : 'Analisar Caso' }}
+        </button>
+
+        <button class="btn btn-ghost" (click)="onLimpar()" *ngIf="hasResult">
+            <span class="material-symbols-rounded btn-icon">delete_sweep</span>
+            Limpar
+        </button>
+
+        <!-- Recording Timer -->
+        <div class="recording-timer" *ngIf="gravando">
+            <span class="material-symbols-rounded rec-indicator" style="font-size: 16px;">fiber_manual_record</span>
+            {{ tempoGravacao }}s
+        </div>
+    </div>
+</section>

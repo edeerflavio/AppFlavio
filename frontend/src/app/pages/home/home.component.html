@@ -1,0 +1,17 @@
+<!-- Header removed, handled by MainLayout -->
+
+<main class="main-container">
+
+    <!-- ERROR ALERT -->
+    <div class="alert-error" *ngIf="erro">
+        <strong>⚠️ Erro:</strong> {{ erro }}
+    </div>
+
+    <!-- INPUT FORM -->
+    <app-input-form [(nomeCompleto)]="nomeCompleto" [(idade)]="idade" [(cenarioAtendimento)]="cenarioAtendimento"
+        [(textoTranscrito)]="textoTranscrito" [gravando]="gravando" [processando]="processando"
+        [tempoGravacao]="tempoGravacao" [hasResult]="!!resultado" (gravar)="onGravar()" (analisar)="onAnalisar()"
+        (limpar)="onLimpar()"></app-input-form>
+
+
+</main>

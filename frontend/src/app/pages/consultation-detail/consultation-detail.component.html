@@ -1,0 +1,39 @@
+<div class="detail-container">
+    <div class="header-row">
+        <a routerLink="/" class="back-btn">
+            <span class="material-symbols-rounded">arrow_back</span>
+            Voltar para Início
+        </a>
+        <h1>Detalhes da Consulta #{{ consultationId }}</h1>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Carregando dados da consulta...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="error-state">
+        <span class="material-symbols-rounded">error</span>
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" (click)="loadConsultation()">Tentar Novamente</button>
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="data && !loading" class="content-wrapper">
+        <app-patient-header [patient]="data.patient" [clinicalData]="data.clinicalData"></app-patient-header>
+
+        <div class="grid-layout">
+            <div class="main-column">
+                <app-soap-cards [soap]="data.soap"></app-soap-cards>
+            </div>
+
+            <div class="side-column">
+                <app-documents-panel [documents]="data.documents"></app-documents-panel>
+                <app-clinical-json [clinicalData]="data.clinicalData" [jsonUniversal]="data.jsonUniversal">
+                </app-clinical-json>
+            </div>
+        </div>
+    </div>
+</div>

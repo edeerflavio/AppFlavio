@@ -1,0 +1,169 @@
+/* 
+  styles.scss — Global Styles 
+  Theme: Modern Dark Glass (Zinc Palette)
+  Font: Inter / Roboto
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0');
+
+:root {
+    /* ── Colors (Zinc Palette) ── */
+    --bg-app: #09090b;
+    /* Zinc 950 */
+    --bg-sidebar: rgba(24, 24, 27, 0.7);
+    /* Zinc 900 + Opacity */
+    --bg-card: rgba(39, 39, 42, 0.6);
+    /* Zinc 800 + Opacity */
+    --bg-card-hover: rgba(63, 63, 70, 0.6);
+    /* Zinc 700 + Opacity */
+
+    --border-color: rgba(63, 63, 70, 0.4);
+    /* Zinc 700 */
+    --border-light: rgba(82, 82, 91, 0.4);
+    /* Zinc 600 */
+
+    --text-primary: #f4f4f5;
+    /* Zinc 100 */
+    --text-secondary: #a1a1aa;
+    /* Zinc 400 */
+    --text-muted: #71717a;
+    /* Zinc 500 */
+
+    /* ── Brand Colors ── */
+    --primary: #3b82f6;
+    /* Blue 500 */
+    --primary-hover: #2563eb;
+    /* Blue 600 */
+    --primary-glow: rgba(59, 130, 246, 0.5);
+
+    --accent: #10b981;
+    /* Emerald 500 */
+    --danger: #ef4444;
+    /* Red 500 */
+    --warning: #f59e0b;
+    /* Amber 500 */
+
+    /* ── Spacing & Radius ── */
+    --sidebar-width: 260px;
+    --sidebar-width-collapsed: 80px;
+    --header-height: 70px;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+
+    /* ── Effects ── */
+    --blur-md: blur(12px);
+    --shadow-lg: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Mixins ── */
+@mixin glass-panel {
+    background: var(--bg-card);
+    backdrop-filter: var(--blur-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+}
+
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Reset & Base ── */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-app);
+    background-image:
+        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.05), transparent 25%);
+    color: var(--text-primary);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ── Typography ── */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+p {
+    color: var(--text-secondary);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color var(--transition-fast);
+}
+
+/* ── Icon Font ── */
+.material-symbols-rounded {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-size: 24px;
+    user-select: none;
+}
+
+.material-symbols-rounded.filled {
+    font-variation-settings: 'FILL' 1;
+}
+
+/* ── Utilities ── */
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
