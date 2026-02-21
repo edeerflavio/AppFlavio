@@ -7,11 +7,96 @@
         <strong>⚠️ Erro:</strong> {{ erro }}
     </div>
 
-    <!-- INPUT FORM -->
-    <app-input-form [(nomeCompleto)]="nomeCompleto" [(idade)]="idade" [(cenarioAtendimento)]="cenarioAtendimento"
-        [(textoTranscrito)]="textoTranscrito" [gravando]="gravando" [processando]="processando"
-        [tempoGravacao]="tempoGravacao" [hasResult]="!!resultado" (gravar)="onGravar()" (analisar)="onAnalisar()"
-        (limpar)="onLimpar()"></app-input-form>
+    <!-- RECORDING & COPILOT VIEW -->
+    <div class="split-screen-container" *ngIf="!exibindoSistematizacao">
+        <!-- LEFT PANEL (60%) -->
+        <div class="left-panel">
+            <app-input-form [(nomeCompleto)]="nomeCompleto" [(idade)]="idade"
+                [(cenarioAtendimento)]="cenarioAtendimento" [textoTranscrito]="textoTranscrito"
+                (textoTranscritoChange)="onTextoChange($event)" [gravando]="gravando" [processando]="processando"
+                [tempoGravacao]="tempoGravacao" [hasResult]="!!resultado" (gravar)="onGravar()"
+                (limpar)="onLimpar()"></app-input-form>
 
+            <div class="actions-footer">
+                <button class="btn btn-success finalize-btn" (click)="finalizarAtendimento()"
+                    [disabled]="isSystematizing || !textoTranscrito.trim()">
+                    <div class="spinner-small" *ngIf="isSystematizing"></div>
+                    <span class="material-symbols-rounded btn-icon" *ngIf="!isSystematizing">task_alt</span>
+                    {{ isSystematizing ? 'Sistematizando...' : 'Finalizar Atendimento' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL (40%) -->
+        <div class="right-panel">
+            <div class="header-row">
+                <h3>Copiloto Médico IA</h3>
+                <div class="real-time-indicator" *ngIf="isLoadingCopiloto">
+                    <div class="pulse-ring"></div>
+                    <span>Analisando...</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="ambiente">Ambiente Clínico</label>
+                <select id="ambiente" [(ngModel)]="contextoCopiloto" class="copilot-select">
+                    <option value="Emergência">Emergência</option>
+                    <option value="Consultório">Consultório</option>
+                    <option value="UBS">UBS</option>
+                </select>
+            </div>
+
+            <div class="insights-result" [innerHTML]="analiseClinica" *ngIf="analiseClinica"></div>
+
+            <div class="error-alert" *ngIf="erroCopiloto">
+                <p>{{ erroCopiloto }}</p>
+            </div>
+
+            <div class="empty-state" *ngIf="!analiseClinica && !isLoadingCopiloto && !erroCopiloto">
+                <p>Aguardando análise clínica...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SYSTEMATIZATION / CLOSURE VIEW -->
+    <div class="closure-container" *ngIf="exibindoSistematizacao">
+        <header class="closure-header">
+            <button class="btn-back" (click)="voltarParaGravacao()">
+                <span class="material-symbols-rounded">arrow_back</span>
+                Voltar
+            </button>
+            <h2>Fechamento do Atendimento</h2>
+        </header>
+
+        <div class="closure-tabs">
+            <button class="tab-btn" [class.active]="abaAtiva === 'prontuario'"
+                (click)="setAba('prontuario')">Prontuário</button>
+            <button class="tab-btn" [class.active]="abaAtiva === 'receituario'"
+                (click)="setAba('receituario')">Receituário</button>
+            <button class="tab-btn" [class.active]="abaAtiva === 'atestado'"
+                (click)="setAba('atestado')">Atestado</button>
+            <button class="tab-btn" [class.active]="abaAtiva === 'exames'" (click)="setAba('exames')">Exames</button>
+            <button class="tab-btn" [class.active]="abaAtiva === 'orientacoes'"
+                (click)="setAba('orientacoes')">Orientações</button>
+        </div>
+
+        <div class="closure-content card-glass">
+            <div class="editor-header">
+                <h3>Edição: {{ abaAtiva | titlecase }}</h3>
+                <div class="editor-actions">
+                    <button class="btn-icon-label" *ngIf="abaAtiva === 'prontuario'" (click)="copiarProntuario()">
+                        <span class="material-symbols-rounded">content_copy</span> COPIAR
+                    </button>
+                    <button class="btn-icon-label btn-pdf" *ngIf="abaAtiva !== 'prontuario'"
+                        (click)="gerarPDF(abaAtiva)">
+                        <span class="material-symbols-rounded">picture_as_pdf</span> GERAR PDF
+                    </button>
+                </div>
+            </div>
+
+            <textarea class="systematic-editor" [(ngModel)]="systematicResult![abaAtiva]"
+                placeholder="Nenhum conteúdo gerado para esta aba."></textarea>
+        </div>
+    </div>
 
 </main>

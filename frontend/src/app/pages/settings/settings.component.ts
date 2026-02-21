@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ScribeService, LLMSettings, LLMSettingsUpdate, TestConnectionResult } from '../../services/scribe.service';
+import { PhysicianProfileService, PhysicianProfile } from '../../services/physician-profile.service';
 
 @Component({
     selector: 'app-settings',
@@ -12,9 +13,16 @@ import { ScribeService, LLMSettings, LLMSettingsUpdate, TestConnectionResult } f
 })
 export class SettingsComponent implements OnInit {
     private scribeService = inject(ScribeService);
+    private profileService = inject(PhysicianProfileService);
 
     // ── Doctor Profile ──
-    doctorName = '';
+    profile: PhysicianProfile = {
+        nome: '',
+        especialidade: '',
+        crm: '',
+        rqe: '',
+        logoUrl: ''
+    };
 
     // ── LLM Configuration ──
     apiKey = '';
@@ -37,14 +45,22 @@ export class SettingsComponent implements OnInit {
     showApiKey = false;
 
     ngOnInit(): void {
-        // Load doctor name from localStorage
-        const stored = localStorage.getItem('scribe_doctor_name');
-        if (stored) {
-            this.doctorName = stored;
-        }
+        // Load profile from Service
+        this.profile = { ...this.profileService.getProfile() };
 
         // Load LLM settings from backend
         this.loadLLMSettings();
+    }
+
+    onLogoUpload(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.profile.logoUrl = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
     loadLLMSettings(): void {
@@ -72,12 +88,8 @@ export class SettingsComponent implements OnInit {
         this.saving = true;
         this.errorMessage = '';
 
-        // Save doctor name locally
-        if (this.doctorName.trim()) {
-            localStorage.setItem('scribe_doctor_name', this.doctorName.trim());
-        } else {
-            localStorage.removeItem('scribe_doctor_name');
-        }
+        // Save physician profile locally via Service
+        this.profileService.saveProfile(this.profile);
 
         // Save LLM settings to backend
         const update: LLMSettingsUpdate = {
@@ -86,7 +98,6 @@ export class SettingsComponent implements OnInit {
             provider: this.provider,
         };
 
-        // Only send api_key if user typed a new one
         if (this.apiKey.trim()) {
             update.api_key = this.apiKey.trim();
         }
@@ -97,7 +108,7 @@ export class SettingsComponent implements OnInit {
                 this.saved = true;
                 this.apiKeyMasked = settings.api_key_masked;
                 this.hasApiKey = settings.has_api_key;
-                this.apiKey = ''; // Clear the input after saving
+                this.apiKey = '';
                 this.connectionStatus = 'idle';
                 setTimeout(() => this.saved = false, 3000);
             },
@@ -130,14 +141,16 @@ export class SettingsComponent implements OnInit {
     }
 
     resetSettings(): void {
-        this.doctorName = '';
-        this.apiKey = '';
-        this.transcriptionModel = 'whisper-1';
-        this.chatModel = 'gpt-4o-mini';
-        this.provider = 'openai';
-        localStorage.removeItem('scribe_doctor_name');
-        this.connectionStatus = 'idle';
-        this.connectionMessage = '';
+        if (confirm('Deseja realmente redefinir todas as configurações?')) {
+            this.profile = { nome: '', especialidade: '', crm: '', rqe: '', logoUrl: '' };
+            this.profileService.saveProfile(this.profile);
+            this.apiKey = '';
+            this.transcriptionModel = 'whisper-1';
+            this.chatModel = 'gpt-4o-mini';
+            this.provider = 'openai';
+            this.connectionStatus = 'idle';
+            this.connectionMessage = '';
+        }
     }
 
     toggleApiKeyVisibility(): void {

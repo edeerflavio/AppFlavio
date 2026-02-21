@@ -42,15 +42,54 @@
             </div>
 
             <div class="card-body">
-                <div class="field">
-                    <label for="doctorName">Nome do Médico</label>
-                    <input type="text" id="doctorName" [(ngModel)]="doctorName" placeholder="Ex: Dr. Flávio" />
+                <!-- Nome e Especialidade -->
+                <div class="field-row">
+                    <div class="field">
+                        <label for="doctorName">Nome do Médico</label>
+                        <input type="text" id="doctorName" [(ngModel)]="profile.nome"
+                            placeholder="Ex: Dr. Flávio Silva" />
+                    </div>
+                    <div class="field">
+                        <label for="doctorSpec">Especialidade</label>
+                        <input type="text" id="doctorSpec" [(ngModel)]="profile.especialidade"
+                            placeholder="Ex: Cardiologia" />
+                    </div>
+                </div>
+
+                <!-- CRM e RQE -->
+                <div class="field-row">
+                    <div class="field">
+                        <label for="doctorCRM">CRM</label>
+                        <input type="text" id="doctorCRM" [(ngModel)]="profile.crm" placeholder="Ex: 123456-SP" />
+                    </div>
+                    <div class="field">
+                        <label for="doctorRQE">RQE</label>
+                        <input type="text" id="doctorRQE" [(ngModel)]="profile.rqe" placeholder="Ex: 98765" />
+                    </div>
+                </div>
+
+                <!-- Logo Upload -->
+                <div class="field logo-field">
+                    <label>Assinatura / Logotipo</label>
+                    <div class="logo-upload-wrapper">
+                        <div class="logo-preview" *ngIf="profile.logoUrl">
+                            <img [src]="profile.logoUrl" alt="Logo do Médico" />
+                            <button class="btn-remove-logo" (click)="profile.logoUrl = ''">
+                                <span class="material-symbols-rounded">close</span>
+                            </button>
+                        </div>
+                        <div class="logo-placeholder" *ngIf="!profile.logoUrl">
+                            <span class="material-symbols-rounded">image</span>
+                            <span>Upload Logotipo</span>
+                        </div>
+                        <input type="file" (change)="onLogoUpload($event)" accept="image/*" class="file-input" />
+                    </div>
                 </div>
 
                 <div class="info-box">
                     <span class="material-symbols-rounded">info</span>
-                    <span>Este nome será usado para identificar o médico na transcrição e em todos os documentos
-                        gerados.</span>
+                    <span>Estes dados serão inseridos no cabeçalho dos documentos (Receituário, Atestado, etc) ao gerar
+                        o PDF.</span>
                 </div>
             </div>
         </section>

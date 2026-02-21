@@ -1,0 +1,6 @@
+{
+  "provider": "openai",
+  "api_key": "2016Luiza",
+  "transcription_model": "whisper-1",
+  "chat_model": "gpt-4o-mini"
+}

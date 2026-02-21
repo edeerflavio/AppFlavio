@@ -61,12 +61,6 @@
             {{ gravando ? 'Parar Gravação' : 'Gravar Áudio' }}
         </button>
 
-        <button class="btn btn-primary" (click)="onAnalisar()" [disabled]="processando || !textoTranscrito.trim()">
-            <span class="spinner" *ngIf="processando"></span>
-            <span class="material-symbols-rounded btn-icon" *ngIf="!processando">psychology</span>
-            {{ processando ? 'Processando...' : 'Analisar Caso' }}
-        </button>
-
         <button class="btn btn-ghost" (click)="onLimpar()" *ngIf="hasResult">
             <span class="material-symbols-rounded btn-icon">delete_sweep</span>
             Limpar

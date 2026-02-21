@@ -20,7 +20,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d medical_scribe"]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d medical_scribe" ]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -37,7 +37,9 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql+asyncpg://admin:senha123@db:5432/medical_scribe
+      - DATABASE_URL=postgresql+asyncpg://admin:senha123@db:5432/medical_scribe
+      - MEDICAL_API_KEY=${MEDICAL_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
 
   # ── Angular Frontend (Nginx) ──
   frontend:
